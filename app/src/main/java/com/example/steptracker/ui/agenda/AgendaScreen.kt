@@ -37,8 +37,12 @@ import com.example.steptracker.R
 import com.example.steptracker.ui.ViewModelProvider
 import com.example.steptracker.ui.home.HomeBody
 import com.example.steptracker.ui.navigation.NavigationDestination
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.reflect.KFunction1
+
 
 object AgendaDestination : NavigationDestination {
     override val route = "agenda"
@@ -162,6 +166,9 @@ fun AgendaBody(
 
 @Composable
 fun RecordCard(it: StepsRecord, deleteDayRecord: KFunction1<String, Unit>) {
+    val formatter = DateTimeFormatter.ofPattern("hh:mm")
+        .withZone(ZoneId.systemDefault())
+    val formattedInstant = formatter.format(it.endTime)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,7 +177,7 @@ fun RecordCard(it: StepsRecord, deleteDayRecord: KFunction1<String, Unit>) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "time",
+                    text = formattedInstant,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(
                         top = 8.dp,
