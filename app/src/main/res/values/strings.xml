@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Step Tracker</string>
+    <string name="agenda">Agenda</string>
+    <string name="add">Add</string>
+    <string name="steps_today">Steps today</string>
+    <string name="steps">Steps</string>
+    <string name="no_data">No data</string>
+</resources>
