@@ -12,10 +12,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -23,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -35,6 +38,7 @@ import com.example.steptracker.ui.ViewModelProvider
 import com.example.steptracker.ui.home.HomeBody
 import com.example.steptracker.ui.navigation.NavigationDestination
 import java.time.LocalDateTime
+import kotlin.reflect.KFunction1
 
 object AgendaDestination : NavigationDestination {
     override val route = "agenda"
@@ -56,7 +60,8 @@ fun AgendaScreen(
         AgendaBody(
             isSinglePane = true,
             dailySteps = viewModel.dailySteps.value,
-            dayRecords = viewModel.dayRecords.value
+            dayRecords = viewModel.dayRecords.value,
+            deleteDayRecord = viewModel::deleteDayData,
         )
     } else
         Scaffold(
@@ -83,6 +88,7 @@ fun AgendaScreen(
                 isSinglePane = false,
                 dailySteps = viewModel.dailySteps.value,
                 dayRecords = viewModel.dayRecords.value,
+                deleteDayRecord = viewModel::deleteDayData,
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -93,6 +99,7 @@ fun AgendaBody(
     isSinglePane: Boolean,
     dailySteps: List<Pair<LocalDateTime, Long?>>,
     dayRecords: List<List<StepsRecord>>,
+    deleteDayRecord: KFunction1<String, Unit>,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(horizontal = 16.dp)) {
@@ -145,35 +152,51 @@ fun AgendaBody(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         if (index < dayRecords.size && dayRecords.isNotEmpty())
-                            dayRecords[index].forEach {
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 8.dp)
-                                ) {
-                                    Text(
-                                        text = "time",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.padding(
-                                            top = 8.dp,
-                                            start = 8.dp,
-                                            end = 8.dp
-                                        )
-                                    )
-                                    Text(
-                                        text = it.count.toString(),
-                                        fontWeight = FontWeight.Bold,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.padding(
-                                            bottom = 8.dp,
-                                            start = 8.dp,
-                                            end = 8.dp
-                                        )
-                                    )
-                                }
-                            }
+                            dayRecords[index].forEach { RecordCard(it, deleteDayRecord) }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun RecordCard(it: StepsRecord, deleteDayRecord: KFunction1<String, Unit>) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp)
+    ) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "time",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(
+                        top = 8.dp,
+                        start = 8.dp,
+                        end = 8.dp
+                    )
+                )
+                Text(
+                    text = it.count.toString(),
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(
+                        bottom = 8.dp,
+                        start = 8.dp,
+                        end = 8.dp
+                    )
+                )
+            }
+            IconButton(
+                onClick = { deleteDayRecord(it.metadata.id) },
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = stringResource(id = R.string.delete)
+                )
             }
         }
     }

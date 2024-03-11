@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 
 class AgendaViewModel(private val stepsData: StepsData) : ViewModel() {
 
@@ -45,7 +44,7 @@ class AgendaViewModel(private val stepsData: StepsData) : ViewModel() {
                 stepsDataPeriod.value.second.plusDays(1).minusSeconds(1)
             )?.let { data ->
                 dailySteps.value = data.toList()
-                dailySteps.value.forEach{
+                dailySteps.value.forEach {
                     fetchDayData(Pair(it.first.toLocalDate(), it.second))
                 }
             }
@@ -61,18 +60,13 @@ class AgendaViewModel(private val stepsData: StepsData) : ViewModel() {
                     .toInstant(),
             )
         }
+        updateAggregationData()
     }
 
-    data class DailySteps(
-        val installSdkDialogRequired: Boolean = false,
-        val permissionDialogRequired: Boolean = false,
-    )
-
-    fun LocalDate.getAllDaysUntil(until: LocalDate): List<LocalDate> {
-        val result = mutableListOf<LocalDate>()
-        for (i in 0L..ChronoUnit.DAYS.between(this, until)) {
-            result.add(this.plusDays(i))
+    fun deleteDayData(id: String) {
+        viewModelScope.launch {
+            stepsData.deleteStepsRecord(id)
         }
-        return result
+        updateAggregationData()
     }
 }

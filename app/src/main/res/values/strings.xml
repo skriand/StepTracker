@@ -5,4 +5,5 @@
     <string name="steps_today">Steps today</string>
     <string name="steps">Steps</string>
     <string name="no_data">No data</string>
+    <string name="delete">Delete</string>
 </resources>
